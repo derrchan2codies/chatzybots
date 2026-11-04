@@ -1,0 +1,82 @@
+@font-face { font-family:"IBM Plex Sans"; font-style:normal; font-weight:400; font-display:swap; src:url("fonts/ibm-plex-sans-400.ttf") format("truetype"); }
+@font-face { font-family:"IBM Plex Sans"; font-style:normal; font-weight:500; font-display:swap; src:url("fonts/ibm-plex-sans-500.ttf") format("truetype"); }
+@font-face { font-family:"IBM Plex Sans"; font-style:normal; font-weight:600; font-display:swap; src:url("fonts/ibm-plex-sans-600.ttf") format("truetype"); }
+
+:root {
+  color-scheme:light;
+  --bg:#F8F4F1;
+  --surface:#FFFFFF; --surface-2:#EEF0F4; --ink:#17202B; --muted:#5A6473; --line:#DCE1E8;
+  --bar:#000000; --bar-ink:#FFFFFF; --blue:#2A67AD;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r:10px;
+}
+* { box-sizing:border-box; }
+html, body { height:auto; overflow-y:auto; }
+body {
+  margin:0; font-family:var(--body); font-size:15px; line-height:1.55;
+  color:var(--ink); background:var(--bg); display:flex; flex-direction:column;
+  min-height:100vh; padding-bottom:60px;
+}
+button, input { font:inherit; color:inherit; }
+button { cursor:pointer; }
+:focus-visible { outline:2px solid var(--blue); outline-offset:2px; border-radius:4px; }
+
+/* Top black bar */
+.top-bar {
+  width:100%; height:52px; background:var(--bar); color:var(--bar-ink);
+  display:flex; align-items:center; justify-content:space-between; padding:0 14px;
+  flex-shrink:0;
+}
+.top-bar :focus-visible { outline-color:#fff; }
+.home-link {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:40px; height:40px; border-radius:8px; color:#fff;
+}
+.home-link:hover { background:rgba(255,255,255,.16); }
+.home-icon { display:block; }
+.logout-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  background:#FFFFFF; color:#000000; border:1px solid #FFFFFF;
+  border-radius:8px; padding:6px 14px; font-size:14px; font-weight:500;
+  line-height:1.2; min-height:36px; text-decoration:none;
+}
+.logout-btn:hover { background:var(--surface-2); border-color:var(--surface-2); }
+
+/* Logo under the bar, upper left */
+.logo-row {
+  width:100%; padding:16px 20px 0; display:flex;
+  justify-content:flex-start; align-items:center;
+}
+.logo-row img { height:48px; width:auto; max-width:100%; display:block; }
+
+/* Chat */
+.chat-panel { width:60%; margin:24px auto 0; }
+#log {
+  width:100%; height:300px; overflow-y:auto; background:var(--surface);
+  border:1px solid var(--line); border-radius:var(--r); padding:18px;
+  font-size:15px; line-height:1.6;
+}
+#log p { margin:0 0 16px; white-space:pre-wrap; overflow-wrap:anywhere; }
+#log p:last-child { margin-bottom:0; }
+#log strong { font-weight:600; }
+
+.chat-form { display:flex; gap:8px; margin-top:10px; }
+.chat-input {
+  flex:1; min-width:0; height:40px; padding:0 12px; background:var(--surface);
+  border:1px solid var(--line); border-radius:8px;
+}
+.send-btn {
+  display:inline-flex; align-items:center; justify-content:center; height:40px;
+  padding:0 18px; background:#000000; color:#FFFFFF; border:1px solid #000000;
+  border-radius:8px; font-size:15px; font-weight:500;
+}
+.send-btn:not(:disabled):hover { background:#222; }
+button:disabled { opacity:.5; cursor:not-allowed; }
+
+[hidden] { display:none !important; }
+@media (max-width:700px) {
+  .chat-panel { width:calc(100% - 32px); }
+  .logo-row { padding-left:16px; padding-right:16px; }
+  #log { padding:16px; }
+}
+@media (prefers-reduced-motion:reduce) { *, *::before, *::after { scroll-behavior:auto !important; } }
