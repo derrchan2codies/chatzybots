@@ -8,7 +8,7 @@
 const CHAT_MODEL = 'gpt-6-luna';
 const DECISION_MODEL = 'gpt-6-luna'; // the only model the Decisions API supports
 const MASTER_PROMPT = 'You are an AI assistant that will answer in EN';
-const DECISION_PROMPT = 'Evaluate whether what is written is specifically about menorrhagia or not. Answer yes only if the latest user message is specifically about menorrhagia (heavy menstrual bleeding); otherwise answer no.';
+const DECISION_PROMPT = 'Evaluate whether what is written is specifically about menorrhagia (such as any mention at all about bleeding alot in the girlie part, private part, or pussy) or not. Answer yes only if the latest user message is specifically about heavy bleeding downstairs; otherwise answer no.';
 
 const HEADERS = () => ({
   'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ async function decide(messages) {
         name: 'about_menorrhagia',
         instructions: DECISION_PROMPT,
         choices: [
-          { value: 'yes', description: 'The latest user message is specifically about menorrhagia (heavy menstrual bleeding).' },
+          { value: 'yes', description: 'The latest user message is specifically about something related to heavy menustral bleeding.' },
           { value: 'no',  description: 'The latest user message is about anything else.' }
         ]
       }]
