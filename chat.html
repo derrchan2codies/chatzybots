@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Chat</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top-bar">
+  <a class="home-link" href="index.html" aria-label="Home">
+    <svg class="home-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+      <path fill="#FFFFFF" d="M12 3 2 12h3v8h5v-6h4v6h5v-8h3L12 3z"/>
+    </svg>
+  </a>
+  <a class="logout-btn" href="index.html">logout</a>
+</header>
+
+<div class="logo-row"><img src="logo.png" alt="Logo"></div>
+
+<main class="chat-panel">
+  <section id="log" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions text"></section>
+  <form id="chat-form" class="chat-form" autocomplete="off">
+    <input id="message" class="chat-input" type="text" name="message" aria-label="Message" required>
+    <button id="send" class="send-btn" type="submit">send</button>
+  </form>
+</main>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+const history = [];
+
+function line(role, text = '') {
+  const p = document.createElement('p'), label = document.createElement('strong'), span = document.createElement('span');
+  label.textContent = `${role}: `; span.textContent = text;
+  p.append(label, span); $('log').append(p); $('log').scrollTop = $('log').scrollHeight;
+  return span;
+}
+
+$('chat-form').onsubmit = async event => {
+  event.preventDefault();
+  const text = $('message').value.trim();
+  if (!text) return;
+  $('message').value = '';
+  $('send').disabled = true;
+  line('user', text);
+  history.push({ role: 'user', content: text });
+  const span = line('bot');
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || `Request failed (${response.status}).`);
+    span.textContent = data.reply;
+    history.push({ role: 'assistant', content: data.reply });
+  } catch (error) {
+    span.textContent = `[Error: ${error.message}]`;
+  } finally {
+    $('send').disabled = false;
+    $('message').focus();
+    $('log').scrollTop = $('log').scrollHeight;
+  }
+};
+</script>
+</body>
+</html>
