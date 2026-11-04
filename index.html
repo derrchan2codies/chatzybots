@@ -6,6 +6,26 @@
 <meta name="color-scheme" content="light">
 <title>Chat</title>
 <link rel="stylesheet" href="styles.css">
+<style>
+  /* Full-screen notice overlay */
+  .notice-overlay {
+    position:fixed; inset:0; z-index:1000;
+    background:rgba(0,0,0,.55);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .notice-box {
+    position:relative; width:100%; max-width:520px;
+    background:#FFFFFF; color:#17202B; border-radius:12px;
+    padding:48px 32px 40px; box-shadow:0 20px 60px rgb(0 0 0 / .3);
+    text-align:center; font-size:18px; line-height:1.5;
+  }
+  .notice-close {
+    position:absolute; top:10px; right:10px; width:36px; height:36px;
+    background:transparent; border:none; border-radius:8px;
+    font-size:22px; line-height:1; color:#17202B; cursor:pointer;
+  }
+  .notice-close:hover { background:#EEF0F4; }
+</style>
 </head>
 <body>
 <header class="top-bar">
@@ -27,10 +47,38 @@
   </form>
 </main>
 
+<!-- Full-screen notice (hidden until 20 s after the first send) -->
+<div id="notice" class="notice-overlay" role="dialog" aria-modal="true" aria-labelledby="notice-text" hidden>
+  <div class="notice-box">
+    <button id="notice-close" class="notice-close" type="button" aria-label="Close">✕</button>
+    <p id="notice-text">Please kindly proceed to you nearest clinical provider</p>
+  </div>
+</div>
+
 <script type="module">
 const $ = id => document.getElementById(id);
 const history = [];
 
+/* ---- Notice timer: starts only on the first press of "send" ---- */
+const NOTICE_DELAY_MS = 20000;
+let noticeTimer = null;
+let noticeStarted = false;
+
+function startNoticeTimer() {
+  if (noticeStarted) return;          // only the first send starts the clock
+  noticeStarted = true;
+  noticeTimer = setTimeout(() => {
+    $('notice').hidden = false;
+    $('notice-close').focus();
+  }, NOTICE_DELAY_MS);
+}
+
+$('notice-close').onclick = () => { $('notice').hidden = true; };
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('notice').hidden) $('notice').hidden = true;
+});
+
+/* ---- Chat ---- */
 function line(role, text = '') {
   const p = document.createElement('p'), label = document.createElement('strong'), span = document.createElement('span');
   label.textContent = `${role}: `; span.textContent = text;
@@ -42,6 +90,7 @@ $('chat-form').onsubmit = async event => {
   event.preventDefault();
   const text = $('message').value.trim();
   if (!text) return;
+  startNoticeTimer();                 // timer begins here, on first send
   $('message').value = '';
   $('send').disabled = true;
   line('user', text);
@@ -53,7 +102,10 @@ $('chat-form').onsubmit = async event => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages: history })
     });
-    const data = await response.json();
+    const raw = await response.text();
+    let data;
+    try { data = JSON.parse(raw); }
+    catch { throw new Error(`/api/chat returned non-JSON (${response.status}): ${raw.slice(0, 120)}`); }
     if (!response.ok) throw new Error(data.error || `Request failed (${response.status}).`);
     span.textContent = data.reply;
     history.push({ role: 'assistant', content: data.reply });
